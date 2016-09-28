@@ -4,10 +4,72 @@
  * Piotr Wilczek <p.wilczek@samsung.com>
  * Przemyslaw Marczak <p.marczak@samsung.com>
  *
+ * Copyright (C) 2016 Zoltan Tombol <zoltan.tombol@gmail.com>
+ *
  * Configuation settings for the Odroid-U3 (EXYNOS4412) board.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
+/*
+ * FIXME: USB and (thus?) Ethernet is broken. Cannot boot from a USB
+ *        mass storage device. There is no power either. Cannot bring up
+ *        the Ethernet interface as described in `doc/README.odroid'.
+ *
+ *        After fixing these issues, enable USB and Network boot. See
+ *        the FIXMEs below.
+ */
+
+/*
+ * Configuration
+ * -------------
+ *
+ * These boards implement the generic distro configuration concept as
+ * described in `doc/README.distro'.
+ *
+ * The following devices are searched for boot files.
+ *
+ *     1. eMMC module
+ *     2. SD card
+ *
+ *
+ * Bootable media layout
+ * ---------------------
+ *
+ * The following table summarises the layout of the bootable media.
+ * Offsets are given in 512 byte blocks. For eMMC the partition to which
+ * a given offset applies to is given in addition.
+ *
+ *                |   SD   |       eMMC        |
+ *                | offset | offset  partition |     size
+ *     -----------+--------+-------------------+--------------
+ *       bl1      |     1  |     0     boot    |  15 KiB
+ *       bl2      |    31  |    30     boot    |  16 KiB
+ *       uboot    |    63  |    62     boot    |   1 MiB
+ *       tzsw     |  2111  |  2110     boot    | 156 KiB
+ *       <unused> |     -  |     -     -       |  69 KiB
+ *       env      |  2560  |  2560     user    |   4 KiB [1]
+ *
+ * [1]: Offset and size of the environment are defined in bytes by
+ *      `CONFIG_ENV_OFFSET' and `CONFIG_ENV_SIZE', respectively.
+ *
+ *
+ * Partition layout
+ * ----------------
+ *
+ * DFU expects the following partition layout. However, the offset of
+ * the first partition applies to any setup.
+ *
+ *       # | name | fs  | offset | contents
+ *     ----+------+-----+--------+----------------------
+ *       1 | boot | fat | 2 MiB  | kernel, fdt, initrd
+ *       2 | root | any | -      | root filesystem
+ *
+ * It is important to leave enough, in this case 2 MiB, unused space
+ * before the start of the first partition to avoid corrupting the
+ * filesystem when saving the environment.
+ */
+
 
 #ifndef __CONFIG_ODROID_U3_H
 #define __CONFIG_ODROID_U3_H
@@ -45,7 +107,6 @@
 /* Console configuration */
 
 #define CONFIG_BOOTARGS			"Please use defined boot"
-#define CONFIG_BOOTCOMMAND		"run autoboot"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
@@ -88,93 +149,65 @@
 	"bl2 raw 0x1f 0x1d;" \
 	"tzsw raw 0x83f 0x138\0"
 
-/*
- * Bootable media layout:
- * dev:    SD   eMMC(part boot)
- * BL1      1    0
- * BL2     31   30
- * UBOOT   63   62
- * TZSW  2111 2110
- * ENV   2560 2560(part user)
- *
- * MBR Primary partiions:
- * Num Name   Size  Offset
- * 1.  BOOT:  100MiB 2MiB
- * 2.  ROOT:  -
-*/
+/* Addresses where various images are loaded. */
+#define CONFIG_LOADADDR		0x40007fc0
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"fdt_addr_r=0x40800000\0"                          \
+	"ramdisk_addr_r=0x42000000\0"                      \
+	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"pxefile_addr_r=0x42000000\0"                      \
+	"scriptaddr=0x42000000\0"
+
+/* Device Firmware Upgrade. */
+#define BOOTENV_DFU \
+	"dfu_alt_system=" CONFIG_DFU_ALT \
+	"dfu_alt_info=Please reset the board\0"
+
+/* Console settings and related command variables. */
+#define BOOTENV_CONSOLE \
+	"consoleon="                                     \
+		"set console console=ttySAC1,115200n8; " \
+		"save; "                                 \
+		"reset; \0"                              \
+	\
+	"consoleoff="                                    \
+		"set console console=ram; "              \
+		"save; "                                 \
+		"reset; \0"                              \
+	\
+	"console=" CONFIG_DEFAULT_CONSOLE
+
+/* Generic distro configuration. See `doc/README.distro'. */
+#ifndef CONFIG_SPL_BUILD
+
+/* Define boot targets. */
+#define BOOT_TARGET_DEVICES(func) \
+        func(MMC, mmc, 0)    \
+        func(MMC, mmc, 1)
+/* FIXME: After fixing USB: Add USB and network boot targets. */
+/*	func(USB, usb, 0)    \
+        func(USB, usb, 1)    \
+        func(PXE, pxe, na)   \
+        func(DHCP, dhcp, na) */
+
+#include <config_distro_defaults.h>
+#include <config_distro_bootcmd.h>
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadbootscript=load mmc ${mmcbootdev}:${mmcbootpart} ${scriptaddr} " \
-		"boot.scr\0" \
-	"loadkernel=load mmc ${mmcbootdev}:${mmcbootpart} ${kerneladdr} " \
-		"${kernelname}\0" \
-	"loadinitrd=load mmc ${mmcbootdev}:${mmcbootpart} ${initrdaddr} " \
-		"${initrdname}\0" \
-	"loaddtb=load mmc ${mmcbootdev}:${mmcbootpart} ${fdtaddr} " \
-		"${fdtfile}\0" \
-	"check_ramdisk=" \
-		"if run loadinitrd; then " \
-			"setenv initrd_addr ${initrdaddr};" \
-		"else " \
-			"setenv initrd_addr -;" \
-		"fi;\0" \
-	"check_dtb=" \
-		"if run loaddtb; then " \
-			"setenv fdt_addr ${fdtaddr};" \
-		"else " \
-			"setenv fdt_addr;" \
-		"fi;\0" \
-	"kernel_args=" \
-		"setenv bootargs root=/dev/mmcblk${mmcrootdev}p${mmcrootpart}" \
-		" rootwait ${console} ${opts}\0" \
-	"boot_script=" \
-		"run loadbootscript;" \
-		"source ${scriptaddr}\0" \
-	"boot_fit=" \
-		"setenv kerneladdr 0x42000000;" \
-		"setenv kernelname Image.itb;" \
-		"run loadkernel;" \
-		"run kernel_args;" \
-		"bootm ${kerneladdr}#${boardname}\0" \
-	"boot_uimg=" \
-		"setenv kerneladdr 0x40007FC0;" \
-		"setenv kernelname uImage;" \
-		"run check_dtb;" \
-		"run check_ramdisk;" \
-		"run loadkernel;" \
-		"run kernel_args;" \
-		"bootm ${kerneladdr} ${initrd_addr} ${fdt_addr};\0" \
-	"boot_zimg=" \
-		"setenv kerneladdr 0x40007FC0;" \
-		"setenv kernelname zImage;" \
-		"run check_dtb;" \
-		"run check_ramdisk;" \
-		"run loadkernel;" \
-		"run kernel_args;" \
-		"bootz ${kerneladdr} ${initrd_addr} ${fdt_addr};\0" \
-	"autoboot=" \
-		"if test -e mmc 0 boot.scr; then; " \
-			"run boot_script; " \
-		"elif test -e mmc 0 Image.itb; then; " \
-			"run boot_fit;" \
-		"elif test -e mmc 0 zImage; then; " \
-			"run boot_zimg;" \
-		"elif test -e mmc 0 uImage; then; " \
-			"run boot_uimg;" \
-		"fi;\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE \
-	"mmcbootdev=0\0" \
-	"mmcbootpart=1\0" \
-	"mmcrootdev=0\0" \
-	"mmcrootpart=2\0" \
-	"bootdelay=0\0" \
-	"dfu_alt_system="CONFIG_DFU_ALT \
-	"dfu_alt_info=Please reset the board\0" \
-	"consoleon=set console console=ttySAC1,115200n8; save; reset\0" \
-	"consoleoff=set console console=ram; save; reset\0" \
-	"initrdname=uInitrd\0" \
-	"initrdaddr=42000000\0" \
-	"scriptaddr=0x42000000\0" \
-	"fdtaddr=40800000\0"
+	MEM_LAYOUT_ENV_SETTINGS \
+	BOOTENV_DFU             \
+	BOOTENV_CONSOLE         \
+	BOOTENV                 \
+	"bootdelay=0\0"
+/*
+ * FIXME: After fixing USB: Add network setup commands as described in
+ *        `doc/README.distro' and `doc/README.odroid'.
+ */
+/*	"boot_net_usb_start="                           \
+		"setenv usbethaddr 02:DE:AD:BE:EF:FF; " \
+		"usb start; \0" */
+
+#endif /* CONFIG_SPL_BUILD */
 
 /* I2C */
 #define CONFIG_SYS_I2C_S3C24X0
