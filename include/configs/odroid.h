@@ -75,6 +75,7 @@
 #define __CONFIG_ODROID_U3_H
 
 #include <configs/exynos4-common.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
@@ -86,10 +87,10 @@
 
 #define CONFIG_NR_DRAM_BANKS	8
 #define CONFIG_SYS_SDRAM_BASE	0x40000000
-#define SDRAM_BANK_SIZE		(256 << 20)	/* 256 MB */
+#define SDRAM_BANK_SIZE		SZ_256M
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
 /* Reserve the last 1 MiB for the secure firmware */
-#define CONFIG_SYS_MEM_TOP_HIDE		(1UL << 20UL)
+#define CONFIG_SYS_MEM_TOP_HIDE		SZ_1M
 #define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
 
 /* memtest works on */
@@ -97,8 +98,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 #define CONFIG_SYS_TEXT_BASE		0x43e00000
-
-#include <linux/sizes.h>
 
 /* select serial console configuration */
 #define CONFIG_SERIAL1
@@ -116,7 +115,7 @@
 
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
-#define CONFIG_ENV_SIZE			4096
+#define CONFIG_ENV_SIZE			SZ_4K
 #define CONFIG_ENV_OFFSET		(SZ_1K * 1280) /* 1.25 MiB offset */
 #define CONFIG_ENV_OVERWRITE
 
@@ -135,7 +134,7 @@
 	""PARTS_ROOT" part 0 2\0" \
 
 #define CONFIG_SET_DFU_ALT_INFO
-#define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
+#define CONFIG_SET_DFU_ALT_BUF_LEN	SZ_1K
 
 #define CONFIG_DFU_ALT_BOOT_EMMC \
 	"u-boot raw 0x3e 0x800 mmcpart 1;" \
