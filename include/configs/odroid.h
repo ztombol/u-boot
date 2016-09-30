@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2016 Zoltan Tombol <zoltan.tombol@gmail.com>
  *
- * Configuation settings for the Odroid-U3 (EXYNOS4412) board.
+ * Configuration settings for the Odroid-X2/U2/U3 (EXYNOS4412) boards.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -230,7 +230,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 
 /*
- * Supported Odroid boards: X3, U3
  * TODO: Add Odroid X support
  */
 #define CONFIG_MISC_COMMON
