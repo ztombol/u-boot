@@ -17,7 +17,10 @@
  *        the Ethernet interface as described in `doc/README.odroid'.
  *
  *        After fixing these issues, enable USB and Network boot. See
- *        the FIXMEs below.
+ *        the FIXMEs in the Environment section below.
+ *
+ * TODO: Add Odroid-X support. The X uses a variant of the same
+ *       EXYNOS4412 SoC that packages only 1GiB of RAM.
  */
 
 /*
@@ -105,19 +108,12 @@
 
 /* Console configuration */
 
-#define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
-
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
-#define CONFIG_ENV_SIZE			SZ_4K
-#define CONFIG_ENV_OFFSET		(SZ_1K * 1280) /* 1.25 MiB offset */
-#define CONFIG_ENV_OVERWRITE
 
 /* Partitions name */
 #define PARTS_BOOT		"boot"
@@ -148,8 +144,53 @@
 	"bl2 raw 0x1f 0x1d;" \
 	"tzsw raw 0x83f 0x138\0"
 
-/* Addresses where various images are loaded. */
+
+/*----------------------------------------------------------------------
+ * Environment
+ *--------------------------------------------------------------------*/
+
+/* Enable storing the environment in MMC. */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
+#define CONFIG_ENV_OFFSET		(SZ_1K * 1280) /* 1.25 MiB */
+#define CONFIG_ENV_SIZE			SZ_4K
+#define CONFIG_ENV_OVERWRITE
+
+/*
+ * Define the following environment variables:
+ *   - soc_rev
+ *   - soc_id    = 4412
+ *   - boardname = odroid{u3,x2}
+ *   - fdtfile   = exynos4412-odroid{u3,x2}
+ */
+#define CONFIG_MISC_COMMON
+#define CONFIG_MISC_INIT_R
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#define CONFIG_BOARD_TYPES
+#undef CONFIG_REVISION_TAG
+
+/*
+ * Define `bootargs', the environment variable specifying kernel
+ * parameters. This serves only as an error message to users and
+ * developers that they should have set this in `extlinux.conf',
+ * `boot.scr' or `CONFIG_EXTRA_ENV_SETTINGS' below.
+ */
+#define CONFIG_BOOTARGS		"Please use defined boot"
+
+/* Define `loadaddr', the default load address. */
 #define CONFIG_LOADADDR		0x40007fc0
+
+/*
+ * Addresses where various images are loaded.
+ *
+ *   fdt_addr_r     - Flattened Device Tree
+ *   ramdisk_addr_r - Initial Ramdisk
+ *   kernel_addr_r  - Kernel
+ *   pxefile_addr_r - PXE configuration file and `extlinux.conf'
+ *   scriptaddr     - Boot script `boot.scr'
+ *
+ * See `doc/README.distro' for details.
+ */
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_addr_r=0x40800000\0"                          \
 	"ramdisk_addr_r=0x42000000\0"                      \
@@ -227,15 +268,5 @@
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
-
-/*
- * TODO: Add Odroid X support
- */
-#define CONFIG_MISC_COMMON
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-#define CONFIG_BOARD_TYPES
-#define CONFIG_MISC_INIT_R
-
-#undef CONFIG_REVISION_TAG
 
 #endif	/* __CONFIG_H */
