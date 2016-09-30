@@ -88,20 +88,6 @@
 
 #define CONFIG_MACH_TYPE	4289
 
-#define CONFIG_NR_DRAM_BANKS	8
-#define CONFIG_SYS_SDRAM_BASE	0x40000000
-#define SDRAM_BANK_SIZE		SZ_256M
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
-/* Reserve the last 1 MiB for the secure firmware */
-#define CONFIG_SYS_MEM_TOP_HIDE		SZ_1M
-#define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
-
-/* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
-#define CONFIG_SYS_TEXT_BASE		0x43e00000
-
 /* select serial console configuration */
 #define CONFIG_SERIAL1
 #define CONFIG_BAUDRATE			115200
@@ -109,11 +95,6 @@
 /* Console configuration */
 
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
-
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
-					- GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MONITOR_BASE	0x00000000
 
 /* Partitions name */
 #define PARTS_BOOT		"boot"
@@ -143,6 +124,48 @@
 	"bl1 raw 0x1 0x1e;" \
 	"bl2 raw 0x1f 0x1d;" \
 	"tzsw raw 0x83f 0x138\0"
+
+
+/*----------------------------------------------------------------------
+ * Physical Memory Map
+ *--------------------------------------------------------------------*/
+
+/* A total of 2 GiB memory in 8 banks. */
+#define CONFIG_NR_DRAM_BANKS	8
+#define SDRAM_BANK_SIZE		SZ_256M
+
+/* Start address of SDRAM. */
+#define CONFIG_SYS_SDRAM_BASE	0x40000000
+#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
+
+/*
+ * FIXME: Move to a newer method of memory testing! This method has been
+ *        deprecated and replaced by faster and more effective
+ *        alternatives.
+ *
+ *        Use either `get_ram_size()', or testing implemented by the
+ *        POST sub-system. See `doc/README.memory-test' for more.
+ */
+/* The `mtest' command tests this region of memory. */
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
+
+/* Start address of U-Boot before relocation. */
+#define CONFIG_SYS_TEXT_BASE	0x43e00000
+
+/* Fallback default load address after `loadaddr' environment var. */
+#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x3e00000)
+
+/* Initial stack pointer (temporary stack before relocation). */
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
+					- GENERATED_GBL_DATA_SIZE)
+
+/* Reserve the top 1 MiB for the secure firmware (TrustZone SW). */
+#define CONFIG_SYS_MEM_TOP_HIDE		SZ_1M
+#define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
+
+/* Start address of boot monitor code. */
+#define CONFIG_SYS_MONITOR_BASE	0x00000000
 
 
 /*----------------------------------------------------------------------
