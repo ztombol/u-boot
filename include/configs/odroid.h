@@ -206,7 +206,7 @@
 #define CONFIG_BAUDRATE		115200
 
 /* Default settings for the environment (e.g. kernel parameters). */
-#define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1," __stringify(CONFIG_BAUDRATE) "n8\0"
+#define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1," __stringify(CONFIG_BAUDRATE) "n8"
 
 
 /*----------------------------------------------------------------------
@@ -269,17 +269,17 @@
 
 /* Console settings and related command variables. */
 #define BOOTENV_CONSOLE \
-	"consoleon="                                     \
-		"set console console=ttySAC1,115200n8; " \
-		"save; "                                 \
-		"reset; \0"                              \
+	"consoleon="                                       \
+		"set console " CONFIG_DEFAULT_CONSOLE "; " \
+		"save; "                                   \
+		"reset; \0"                                \
 	\
-	"consoleoff="                                    \
-		"set console console=ram; "              \
-		"save; "                                 \
-		"reset; \0"                              \
+	"consoleoff="                                      \
+		"set console console=ram; "                \
+		"save; "                                   \
+		"reset; \0"                                \
 	\
-	"console=" CONFIG_DEFAULT_CONSOLE
+	"console=" CONFIG_DEFAULT_CONSOLE "\0"
 
 /* Generic distro configuration. See `doc/README.distro'. */
 #ifndef CONFIG_SPL_BUILD
