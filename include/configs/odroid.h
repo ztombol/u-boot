@@ -83,14 +83,6 @@
 /* Board ID for Linux: ODROID-X. */
 #define CONFIG_MACH_TYPE	4289
 
-/* select serial console configuration */
-#define CONFIG_SERIAL1
-#define CONFIG_BAUDRATE			115200
-
-/* Console configuration */
-
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
-
 
 /*----------------------------------------------------------------------
  * Hardware setup
@@ -203,6 +195,18 @@
 	"bl1 raw 0x1 0x1e; "                 \
 	"bl2 raw 0x1f 0x1d; "                \
 	"tzsw raw 0x83f 0x138; \0"
+
+
+/*----------------------------------------------------------------------
+ * Console
+ *--------------------------------------------------------------------*/
+
+/* Select and configure serial console. */
+#define CONFIG_SERIAL1
+#define CONFIG_BAUDRATE		115200
+
+/* Default settings for the environment (e.g. kernel parameters). */
+#define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1," __stringify(CONFIG_BAUDRATE) "n8\0"
 
 
 /*----------------------------------------------------------------------
