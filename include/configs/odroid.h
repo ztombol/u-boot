@@ -80,12 +80,7 @@
 #include <configs/exynos4-common.h>
 #include <linux/sizes.h>
 
-#define CONFIG_SYS_L2CACHE_OFF
-#ifndef CONFIG_SYS_L2CACHE_OFF
-#define CONFIG_SYS_L2_PL310
-#define CONFIG_SYS_PL310_BASE	0x10502000
-#endif
-
+/* Board ID for Linux: ODROID-X. */
 #define CONFIG_MACH_TYPE	4289
 
 /* select serial console configuration */
@@ -95,6 +90,36 @@
 /* Console configuration */
 
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
+
+
+/*----------------------------------------------------------------------
+ * Hardware setup
+ *--------------------------------------------------------------------*/
+
+/* Disable L2 cache. */
+#define CONFIG_SYS_L2CACHE_OFF
+#ifndef CONFIG_SYS_L2CACHE_OFF
+#define CONFIG_SYS_L2_PL310
+#define CONFIG_SYS_PL310_BASE	0x10502000
+#endif
+
+/* Enable I2C. */
+#define CONFIG_SYS_I2C_S3C24X0
+#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0
+
+/* Enable hardware random number generator. */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_LIB_HW_RAND
+
+/* Enable USB EHCI controller. */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_EXYNOS
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
+
+/* Enable USB host networking. */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
 
 
 /*----------------------------------------------------------------------
@@ -284,24 +309,7 @@
 
 #endif /* CONFIG_SPL_BUILD */
 
-/* I2C */
-#define CONFIG_SYS_I2C_S3C24X0
-#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
-#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0
-
 /* GPT */
 #define CONFIG_RANDOM_UUID
-
-/* Security subsystem - enable hw_rand() */
-#define CONFIG_EXYNOS_ACE_SHA
-#define CONFIG_LIB_HW_RAND
-
-/* USB */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_EXYNOS
-
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_SMSC95XX
 
 #endif	/* __CONFIG_H */
