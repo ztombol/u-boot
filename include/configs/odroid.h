@@ -210,6 +210,17 @@
 
 
 /*----------------------------------------------------------------------
+ * Misc settings
+ *--------------------------------------------------------------------*/
+
+/*
+ * Generate a random UUID for every partition that does not have one
+ * specified in the environment. See `doc/README.gpt' for more.
+ */
+#define CONFIG_RANDOM_UUID
+
+
+/*----------------------------------------------------------------------
  * Environment
  *--------------------------------------------------------------------*/
 
@@ -312,8 +323,5 @@
 		"usb start; \0" */
 
 #endif /* CONFIG_SPL_BUILD */
-
-/* GPT */
-#define CONFIG_RANDOM_UUID
 
 #endif	/* __CONFIG_H */
