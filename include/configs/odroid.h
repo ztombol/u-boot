@@ -297,8 +297,8 @@
 
 /* Define boot targets. */
 #define BOOT_TARGET_DEVICES(func) \
-        func(MMC, mmc, 0)    \
-        func(MMC, mmc, 1)
+        func(MMC, mmc, 0) /* eMMC module */ \
+        func(MMC, mmc, 1) /* SD card */
 /* FIXME: After fixing USB: Add USB and network boot targets. */
 /*	func(USB, usb, 0)    \
         func(USB, usb, 1)    \
