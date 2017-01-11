@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Odroid board types */
 enum {
 	ODROID_TYPE_U3,
+	ODROID_TYPE_X,
 	ODROID_TYPE_X2,
 	ODROID_TYPES,
 };
@@ -48,16 +49,17 @@ void set_board_type(void)
 	/* XCL205 - needs some latch time */
 	sdelay(200000);
 
-	/* Check GPC1 pin2 - LED supplied by XCL205 - X2 only */
+	/* Check GPC1 pin2 - LED supplied by XCL205 - X/X2 only */
 	if (readl(XCL205_STATE_GPIO_DAT) & (1 << XCL205_STATE_GPIO_PIN))
-		gd->board_type = ODROID_TYPE_X2;
+		/* TODO: Distinguish between X and X2. */
+		gd->board_type = ODROID_TYPE_X;
 	else
 		gd->board_type = ODROID_TYPE_U3;
 }
 
 const char *get_board_type(void)
 {
-	const char *board_type[] = {"u3", "x2"};
+	const char *board_type[] = {"u3", "x", "x2"};
 
 	return board_type[gd->board_type];
 }

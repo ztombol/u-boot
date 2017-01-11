@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2016 Zoltan Tombol <zoltan.tombol@gmail.com>
  *
- * Configuration settings for the Odroid-X2/U2/U3 (EXYNOS4412) boards.
+ * Configuration settings for the Odroid-X (EXYNOS4412) board.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -18,9 +18,6 @@
  *
  *        After fixing these issues, enable USB and Network boot. See
  *        the FIXMEs in the Environment section below.
- *
- * TODO: Add Odroid-X support. The X uses a variant of the same
- *       EXYNOS4412 SoC that packages only 1GiB of RAM.
  */
 
 /*
@@ -118,8 +115,8 @@
  * Physical Memory Map
  *--------------------------------------------------------------------*/
 
-/* A total of 2 GiB memory in 8 banks. */
-#define CONFIG_NR_DRAM_BANKS	8
+/* A total of 1 GiB memory in 8 banks. */
+#define CONFIG_NR_DRAM_BANKS	4
 #define SDRAM_BANK_SIZE		SZ_256M
 
 /* Start address of SDRAM. */
@@ -177,8 +174,7 @@
 	"zImage fat 0 1; "                   \
 	"Image.itb fat 0 1; "                \
 	"uInitrd fat 0 1; "                  \
-	"exynos4412-odroidu3.dtb fat 0 1; "  \
-	"exynos4412-odroidx2.dtb fat 0 1; "  \
+	"exynos4412-odroidx.dtb fat 0 1; "   \
 	""PARTS_BOOT" part 0 1; "            \
 	""PARTS_ROOT" part 0 2; \0"
 
